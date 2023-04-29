@@ -96,7 +96,7 @@ static STARS_FORKS: OnceCell<StarsForks> = OnceCell::new();
 fn init(_params: SmartModuleExtraParams) -> Result<()> {
     STARS_FORKS
         .set(StarsForks::default())
-        .map_err(|err| eyre!("regex init: {:#?}", err))
+        .map_err(|err| eyre!("init error: {:#?}", err))
 }
 
 #[smartmodule(filter_map)]
@@ -107,7 +107,6 @@ pub fn filter_map(record: &Record) -> Result<Option<(Option<RecordData>, RecordD
 
     if let Some(emoji) = accumulator.update_and_generate_moji_string(&new_data) {
         let output = serde_json::to_vec(&emoji)?;
-        // need to update
         Ok(Some((record.key.clone(), output.into())))
     } else {
         Ok(None)
