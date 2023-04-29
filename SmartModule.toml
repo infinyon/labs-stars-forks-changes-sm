@@ -1,0 +1,12 @@
+[package]
+name = "stars-forks-changes"
+group = "infinyon-labs"
+version = "0.1.0"
+apiVersion = "0.1.0"
+description = "Detects changes in stars and forks and generates a json emoji string"
+license = "Apache-2.0"
+visibility = "public"
+
+[[params]]
+name = "input"
+description = ""
