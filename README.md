@@ -24,6 +24,8 @@ SmartModule that reads a `json` records with `stars` and `forks` fields, identif
 
 **SMDK Test**
 
+To run SMDK test
+
 ```
-smdk test --file ./test-data/input.txt
+make test
 ```
