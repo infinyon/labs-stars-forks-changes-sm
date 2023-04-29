@@ -5,10 +5,30 @@ use once_cell::sync::OnceCell;
 use fluvio_smartmodule::{
     dataplane::smartmodule::SmartModuleExtraParams, eyre, smartmodule, Record, RecordData, Result,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 // use u32 to represent the metric
 type METRIC = u32;
+
+/// Incoming record from Github
+#[derive(Default, Deserialize)]
+struct GithubRecord {
+    stars: u32,
+    forks: u32,
+}
+
+
+
+/// Outgoing record 
+#[derive(Default, Serialize)]
+struct GithubOutgoing {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    stars: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    forks: Option<u32>,
+}
+
+
 
 /// Accumulator for stars and forks
 /// Use AtomicU32 to update internal state
@@ -36,27 +56,32 @@ impl StarsForks {
     }
 
     // generate emoji string based on the new stars and forks
-    fn update_and_generate_moji_string(&self, new: &GithubRecord) -> Option<String> {
+    fn update_and_generate_moji_string(&self, new: &GithubRecord) -> Option<GithubOutgoing> {
         if new.stars == 0 && new.forks == 0 {
             // if no stars and forks, return None
             None
         } else if new.stars != self.get_stars() && new.stars != self.get_forks() {
             // if both stars and forks are changed, generate new emoji on prev stats
-            let emoji = format!(
-                ":gitfork: {} \n:star2: {}",
-                self.get_forks(),
-                self.get_stars()
-            );
+            let emoji = GithubOutgoing {
+                stars: Some(self.get_stars()),
+                forks: Some(self.get_forks()),
+            };
             self.set_forks(new.forks);
             self.set_stars(new.stars);
             Some(emoji)
         } else if new.forks != self.get_forks() {
             // if only forks are changed, generate new emoji on prev stats
-            let emoji = format!(":gitfork: {}", self.get_forks());
+            let emoji = GithubOutgoing {
+                stars: None,
+                forks: Some(self.get_forks()),
+            };
             self.set_forks(new.forks);
             Some(emoji)
         } else if new.stars != self.get_stars() {
-            let emoji = format!(":star2: {}", self.get_stars());
+            let emoji = GithubOutgoing {
+                stars: Some(self.get_stars()),
+                forks: None,
+            };
             self.set_stars(new.stars);
             Some(emoji)
         } else {
@@ -75,12 +100,8 @@ fn init(_params: SmartModuleExtraParams) -> Result<()> {
         .map_err(|err| eyre!("regex init: {:#?}", err))
 }
 
-/// Incoming record from Github
-#[derive(Default, Deserialize)]
-pub struct GithubRecord {
-    stars: u32,
-    forks: u32,
-}
+
+
 
 #[smartmodule(filter_map)]
 pub fn filter_map(record: &Record) -> Result<Option<(Option<RecordData>, RecordData)>> {
