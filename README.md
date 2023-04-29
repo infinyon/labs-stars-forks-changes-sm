@@ -2,7 +2,7 @@
 
 SmartModule that reads a `json` records with `stars` and `forks` fields, identifies if the new values have changed, and products a `result` record. This SmartModule is `filter-map` type, and it only returns an output if it detects changes.
 
-** Expected Input **
+**Expected Input**
 
 ```
 {"forks":134,"stars":1723}
@@ -13,7 +13,7 @@ SmartModule that reads a `json` records with `stars` and `forks` fields, identif
 ...
 ```
 
-** Produced Output **
+**Produced Output**
 
 ```
 {"result":":star2: 1722"}
@@ -22,7 +22,7 @@ SmartModule that reads a `json` records with `stars` and `forks` fields, identif
 ...
 ```
 
-** SMDK Test **
+**SMDK Test**
 
 ```
 smdk test --file ./test-data/input.txt
