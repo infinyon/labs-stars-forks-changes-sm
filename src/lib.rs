@@ -20,10 +20,7 @@ struct GithubRecord {
 /// Outgoing record
 #[derive(Default, Serialize)]
 struct GithubOutgoing {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    stars: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    forks: Option<u32>,
+    result: String
 }
 
 /// Accumulator for stars and forks
@@ -56,14 +53,17 @@ impl StarsForks {
         let current_stars = self.get_stars();
         let current_forks = self.get_forks();
 
-        if new.stars == 0 && new.forks == 0 {
-            // if no stars and forks, return None
-            None
-        } else if new.stars != current_stars && new.forks != current_forks {
+        if current_stars == 0 && current_forks == 0 {
+            // if internal store is not yet initialized, use the first record, and an return None
+            self.set_forks(new.forks);
+            self.set_stars(new.stars);
+            return None;
+        }
+        
+        if new.stars != current_stars && new.forks != current_forks {
             // if both stars and forks are changed, generate new emoji on prev stats
             let emoji = GithubOutgoing {
-                stars: Some(current_stars),
-                forks: Some(current_forks),
+                result: format!(":gitfork: {} \n:star2: {}", new.forks, new.stars )
             };
             self.set_forks(new.forks);
             self.set_stars(new.stars);
@@ -71,15 +71,13 @@ impl StarsForks {
         } else if new.forks != current_forks {
             // if only forks are changed, generate new emoji on prev stats
             let emoji = GithubOutgoing {
-                stars: None,
-                forks: Some(current_forks),
+                result: format!(":gitfork: {}", new.forks)
             };
             self.set_forks(new.forks);
             Some(emoji)
         } else if new.stars != current_stars {
             let emoji = GithubOutgoing {
-                stars: Some(current_stars),
-                forks: None,
+                result: format!(":star2: {}", new.stars)
             };
             self.set_stars(new.stars);
             Some(emoji)
