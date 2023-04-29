@@ -10,6 +10,8 @@ use serde::Deserialize;
 // use u32 to represent the metric
 type METRIC = u32;
 
+/// Accumulator for stars and forks
+/// Use AtomicU32 to update internal state
 #[derive(Default, Debug, Deserialize)]
 struct StarsForks {
     stars: AtomicU32,
@@ -73,6 +75,7 @@ fn init(_params: SmartModuleExtraParams) -> Result<()> {
         .map_err(|err| eyre!("regex init: {:#?}", err))
 }
 
+/// Incoming record from Github
 #[derive(Default, Deserialize)]
 pub struct GithubRecord {
     stars: u32,
