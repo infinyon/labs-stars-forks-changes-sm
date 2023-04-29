@@ -17,9 +17,7 @@ struct GithubRecord {
     forks: u32,
 }
 
-
-
-/// Outgoing record 
+/// Outgoing record
 #[derive(Default, Serialize)]
 struct GithubOutgoing {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -27,8 +25,6 @@ struct GithubOutgoing {
     #[serde(skip_serializing_if = "Option::is_none")]
     forks: Option<u32>,
 }
-
-
 
 /// Accumulator for stars and forks
 /// Use AtomicU32 to update internal state
@@ -57,29 +53,32 @@ impl StarsForks {
 
     // generate emoji string based on the new stars and forks
     fn update_and_generate_moji_string(&self, new: &GithubRecord) -> Option<GithubOutgoing> {
+        let current_stars = self.get_stars();
+        let current_forks = self.get_forks();
+
         if new.stars == 0 && new.forks == 0 {
             // if no stars and forks, return None
             None
-        } else if new.stars != self.get_stars() && new.stars != self.get_forks() {
+        } else if new.stars != current_stars && new.forks != current_forks {
             // if both stars and forks are changed, generate new emoji on prev stats
             let emoji = GithubOutgoing {
-                stars: Some(self.get_stars()),
-                forks: Some(self.get_forks()),
+                stars: Some(current_stars),
+                forks: Some(current_forks),
             };
             self.set_forks(new.forks);
             self.set_stars(new.stars);
             Some(emoji)
-        } else if new.forks != self.get_forks() {
+        } else if new.forks != current_forks {
             // if only forks are changed, generate new emoji on prev stats
             let emoji = GithubOutgoing {
                 stars: None,
-                forks: Some(self.get_forks()),
+                forks: Some(current_forks),
             };
             self.set_forks(new.forks);
             Some(emoji)
-        } else if new.stars != self.get_stars() {
+        } else if new.stars != current_stars {
             let emoji = GithubOutgoing {
-                stars: Some(self.get_stars()),
+                stars: Some(current_stars),
                 forks: None,
             };
             self.set_stars(new.stars);
@@ -99,9 +98,6 @@ fn init(_params: SmartModuleExtraParams) -> Result<()> {
         .set(StarsForks::default())
         .map_err(|err| eyre!("regex init: {:#?}", err))
 }
-
-
-
 
 #[smartmodule(filter_map)]
 pub fn filter_map(record: &Record) -> Result<Option<(Option<RecordData>, RecordData)>> {
