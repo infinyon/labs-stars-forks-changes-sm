@@ -8,13 +8,14 @@ use fluvio_smartmodule::{
 use serde::{Deserialize, Serialize};
 
 // use u32 to represent the metric
-type METRIC = u32;
+type Metric = u32;
+type AtomicMetric = AtomicU32;
 
 /// Incoming record from Github
 #[derive(Default, Deserialize)]
 struct GithubRecord {
-    stars: u32,
-    forks: u32,
+    stars: Metric,
+    forks: Metric,
 }
 
 /// Outgoing record
@@ -24,27 +25,27 @@ struct GithubOutgoing {
 }
 
 /// Accumulator for stars and forks
-/// Use AtomicU32 to update internal state
+/// Use Atomic to update internal state
 #[derive(Default, Debug, Deserialize)]
 struct StarsForks {
-    stars: AtomicU32,
-    forks: AtomicU32,
+    stars: AtomicMetric,
+    forks: AtomicMetric,
 }
 
 impl StarsForks {
-    fn get_stars(&self) -> METRIC {
+    fn get_stars(&self) -> Metric {
         self.stars.load(Ordering::SeqCst)
     }
 
-    fn set_stars(&self, new: METRIC) {
+    fn set_stars(&self, new: Metric) {
         self.stars.store(new, Ordering::SeqCst);
     }
 
-    fn get_forks(&self) -> METRIC {
+    fn get_forks(&self) -> Metric {
         self.forks.load(Ordering::SeqCst)
     }
 
-    fn set_forks(&self, new: METRIC) {
+    fn set_forks(&self, new: Metric) {
         self.forks.store(new, Ordering::SeqCst);
     }
 
