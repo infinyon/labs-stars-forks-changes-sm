@@ -111,3 +111,48 @@ pub fn filter_map(record: &Record) -> Result<Option<(Option<RecordData>, RecordD
         Ok(None)
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_updated_and_generate_emoji_string() {
+        let accum = StarsForks::default();
+        
+        // first record sets-up accumulator - no changes        
+        let mut record = GithubRecord { stars: 1723, forks: 134};
+        assert!(accum.update_and_generate_moji_string(&record).is_none());
+
+        // same values - no changes        
+        record = GithubRecord { stars: 1723, forks: 134};
+        assert!(accum.update_and_generate_moji_string(&record).is_none());
+
+        // forks changed
+        record = GithubRecord { stars: 1723, forks: 135};
+        assert_eq!(
+            accum.update_and_generate_moji_string(&record).unwrap().result,
+            format!(":gitfork: 135")
+        );
+
+        // stars changed
+        record = GithubRecord { stars: 1724, forks: 135};
+        assert_eq!(
+            accum.update_and_generate_moji_string(&record).unwrap().result,
+            format!(":star2: 1724")
+        );
+
+        // both changed
+        record = GithubRecord { stars: 1723, forks: 134};
+        assert_eq!(
+            accum.update_and_generate_moji_string(&record).unwrap().result,
+            format!(":gitfork: 134 \n:star2: 1723")
+        );
+
+        // same values - no changes        
+        record = GithubRecord { stars: 1723, forks: 134};
+        assert!(accum.update_and_generate_moji_string(&record).is_none());
+
+    }
+}
