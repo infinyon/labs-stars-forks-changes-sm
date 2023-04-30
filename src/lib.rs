@@ -64,7 +64,7 @@ impl StarsForks {
         if new.stars != current_stars && new.forks != current_forks {
             // if both stars and forks are changed, generate new emoji on prev stats
             let emoji = GithubOutgoing {
-                result: format!(":gitfork: {} \n:star2: {}", new.forks, new.stars )
+                result: format!(":flags: {} \n:star2: {}", new.forks, new.stars )
             };
             self.set_forks(new.forks);
             self.set_stars(new.stars);
@@ -72,7 +72,7 @@ impl StarsForks {
         } else if new.forks != current_forks {
             // if only forks are changed, generate new emoji on prev stats
             let emoji = GithubOutgoing {
-                result: format!(":gitfork: {}", new.forks)
+                result: format!(":flags: {}", new.forks)
             };
             self.set_forks(new.forks);
             Some(emoji)
@@ -133,7 +133,7 @@ mod tests {
         record = GithubRecord { stars: 1723, forks: 135};
         assert_eq!(
             accum.update_and_generate_moji_string(&record).unwrap().result,
-            format!(":gitfork: 135")
+            format!(":flags: 135")
         );
 
         // stars changed
@@ -147,7 +147,7 @@ mod tests {
         record = GithubRecord { stars: 1723, forks: 134};
         assert_eq!(
             accum.update_and_generate_moji_string(&record).unwrap().result,
-            format!(":gitfork: 134 \n:star2: 1723")
+            format!(":flags: 134 \n:star2: 1723")
         );
 
         // same values - no changes        
