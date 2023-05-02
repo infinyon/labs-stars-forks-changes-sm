@@ -1,6 +1,6 @@
 # Stars/Forks JSON Smartmodule
 
-SmartModule that reads a `json` records with `stars` and `forks` fields, identifies if the new values have changed, and products a `result` record. This SmartModule is `filter-map` type, and it only returns an output if it detects changes.
+SmartModule that reads a `json` records with `stars` and `forks` fields, identifies if the new values have changed, and products a `result` record. This SmartModule is [filter-map] type, where a record-in may be dropped, or transformed and passed along to record-out.
 
 **Expected Input**
 
@@ -24,7 +24,7 @@ SmartModule that reads a `json` records with `stars` and `forks` fields, identif
 
 **SMDK Compatible**
 
-This project works with `smdk` command tools, wrapped inside a makefile:
+This project works with `smdk` command tools, wrapped inside the Makefile:
 
 ```
 make build
@@ -33,3 +33,6 @@ make build
 ```
 make test
 ```
+
+
+[filter-map]: https://www.fluvio.io/smartmodules/transform/filter-map/
