@@ -22,9 +22,13 @@ SmartModule that reads a `json` records with `stars` and `forks` fields, identif
 ...
 ```
 
-**SMDK Test**
+**SMDK Compatible**
 
-To run SMDK test
+This project works with `smdk` command tools, wrapped inside a makefile:
+
+```
+make build
+```
 
 ```
 make test
