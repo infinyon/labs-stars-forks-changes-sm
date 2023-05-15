@@ -17,8 +17,8 @@ SmartModule that reads a `json` records with `stars` and `forks` fields, identif
 
 ```
 {"result":":star2: 1722"}
-{"result":":gitfork: 135"}
-{"result":":gitfork: 136 \n:star2: 1723"}
+{"result":":flags: 135"}
+{"result":":flags: 136 \n:star2: 1723"}
 ...
 ```
 
