@@ -64,13 +64,6 @@ impl StarsForks {
         let current_stars = self.get_stars();
         let current_forks = self.get_forks();
 
-        if current_stars == 0 && current_forks == 0 {
-            // if internal store is not yet initialized, use the first record, and an return None
-            self.set_forks(new.forks);
-            self.set_stars(new.stars);
-            return None;
-        }
-        
         if new.stars != current_stars && new.forks != current_forks {
             // if both stars and forks are changed, generate new emoji on prev stats
             let emoji = GithubOutgoing {

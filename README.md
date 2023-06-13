@@ -16,6 +16,7 @@ SmartModule that reads a `json` records with `stars` and `forks` fields, identif
 ### Produced Output
 
 ```
+{"result":":flags: 134 \n:star2: 1723"}
 {"result":":star2: 1722"}
 {"result":":flags: 135"}
 {"result":":flags: 136 \n:star2: 1723"}
