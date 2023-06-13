@@ -50,7 +50,6 @@ $ smdk test --file ./test-data/input.txt --lookback-last 1 --record '{"forks":13
 {"result":":flags: 135"}
 {"result":":flags: 136 \n:star2: 1723"}
 {"result":":star2: 1724"}
-
 ```
 
 Checkout Smartmodule [lookback] for additional details.
