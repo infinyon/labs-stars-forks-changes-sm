@@ -1,0 +1,4 @@
+transforms:
+  - uses: infinyon-labs/stars-forks-changes@0.1.2
+    lookback:
+      last: 1
