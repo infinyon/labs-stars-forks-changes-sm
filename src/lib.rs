@@ -105,6 +105,7 @@ fn init(_params: SmartModuleExtraParams) -> Result<()> {
         .set(StarsForks::default())
         .map_err(|err| eyre!("init error: {:#?}", err))
 }
+
 #[smartmodule(look_back)]
 pub fn look_back(record: &Record) -> Result<()> {
     let last_value = serde_json::from_slice(record.value.as_ref())?;
