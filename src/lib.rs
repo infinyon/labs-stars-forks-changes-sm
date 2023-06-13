@@ -129,7 +129,7 @@ mod tests {
 
     #[test]
     fn test_updated_and_generate_emoji_string() {
-        let accum = StarsForks::default();
+        let accum = StarsForks::new(GithubRecord { stars: 1723, forks: 134});
         
         // first record sets-up accumulator - no changes        
         let mut record = GithubRecord { stars: 1723, forks: 134};
