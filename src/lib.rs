@@ -3,6 +3,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use once_cell::sync::OnceCell;
 
 use fluvio_smartmodule::{
+    dataplane::smartmodule::SmartModuleExtraParams,
     eyre, smartmodule, Record, RecordData, Result,
 };
 use serde::{Deserialize, Serialize};
@@ -98,17 +99,18 @@ impl StarsForks {
     }
 }
 
+#[smartmodule(init)]
+fn init(_params: SmartModuleExtraParams) -> Result<()> {
+    STARS_FORKS
+        .set(StarsForks::default())
+        .map_err(|err| eyre!("init error: {:#?}", err))
+}
 #[smartmodule(look_back)]
 pub fn look_back(record: &Record) -> Result<()> {
-    let init_val = match record.value.is_empty() {
-        true => StarsForks::default(),
-        false => StarsForks::new(
-            serde_json::from_slice(record.value.as_ref())?
-        )
-    };
+    let last_value = serde_json::from_slice(record.value.as_ref())?;
 
     STARS_FORKS
-        .set(init_val)
+        .set(StarsForks::new(last_value))
         .map_err(|err| eyre!("init error: {:#?}", err))
 }
 
