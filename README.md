@@ -23,6 +23,7 @@ SmartModule that reads a `json` records with `stars` and `forks` fields, identif
 ...
 ```
 
+
 ### SMDK Compatible
 
 This project works with `smdk` command tool:
@@ -54,5 +55,18 @@ $ smdk test --file ./test-data/input.txt --lookback-last 1 --record '{"forks":13
 
 Checkout Smartmodule [lookback] for additional details.
 
+
+### Connector (Sink) Compatible
+
+This smartmodule may be used inside a sink connector with the following parameter:
+
+```
+transforms:
+  - uses: infinyon-labs/stars-forks-changes@0.1.2
+    lookback:
+      last: 1
+```
+
 [filter-map]: https://www.fluvio.io/smartmodules/transform/filter-map/
 [lookback]: https://fluvio.io/smartmodules/lookback/
+
