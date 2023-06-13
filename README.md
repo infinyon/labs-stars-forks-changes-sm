@@ -31,9 +31,29 @@ This project works with `smdk` command tool:
 smdk build
 ```
 
+Run test:
+
 ```
-smdk test --file ./test-data/input.txt
+$ smdk test --file ./test-data/input.txt
+{"result":":flags: 134 \n:star2: 1723"}
+{"result":":star2: 1722"}
+{"result":":flags: 135"}
+{"result":":flags: 136 \n:star2: 1723"}
+{"result":":star2: 1724"}
 ```
 
+Run test with lookback initalization:
+
+```
+$ smdk test --file ./test-data/input.txt --lookback-last 1 --record '{"forks":134,"stars":1723}'
+{"result":":star2: 1722"}
+{"result":":flags: 135"}
+{"result":":flags: 136 \n:star2: 1723"}
+{"result":":star2: 1724"}
+
+```
+
+Checkout Smartmodule [lookback] for additional details.
 
 [filter-map]: https://www.fluvio.io/smartmodules/transform/filter-map/
+[lookback]: https://fluvio.io/smartmodules/lookback/

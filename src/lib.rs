@@ -36,13 +36,6 @@ struct StarsForks {
 }
 
 impl StarsForks {
-    fn new(github_record: GithubRecord) -> StarsForks {
-        StarsForks {
-            stars: AtomicMetric::new(github_record.stars),
-            forks: AtomicMetric::new(github_record.forks)
-        }
-    }
-
     fn get_stars(&self) -> Metric {
         self.stars.load(Ordering::SeqCst)
     }
@@ -57,6 +50,11 @@ impl StarsForks {
 
     fn set_forks(&self, new: Metric) {
         self.forks.store(new, Ordering::SeqCst);
+    }
+
+    fn set_both(&self, github_record: GithubRecord) {
+        self.set_stars(github_record.stars);
+        self.set_forks(github_record.forks);
     }
 
     // generate emoji string based on the new stars and forks
@@ -101,11 +99,12 @@ fn init(_params: SmartModuleExtraParams) -> Result<()> {
 
 #[smartmodule(look_back)]
 pub fn look_back(record: &Record) -> Result<()> {
-    let last_value = serde_json::from_slice(record.value.as_ref())?;
+    let last_value: GithubRecord = serde_json::from_slice(record.value.as_ref())?;
+    let accumulator = STARS_FORKS.get().unwrap();
 
-    STARS_FORKS
-        .set(StarsForks::new(last_value))
-        .map_err(|err| eyre!("init error: {:#?}", err))
+    accumulator.set_both(last_value);
+
+    Ok(())
 }
 
 #[smartmodule(filter_map)]
@@ -129,7 +128,8 @@ mod tests {
 
     #[test]
     fn test_updated_and_generate_emoji_string() {
-        let accum = StarsForks::new(GithubRecord { stars: 1723, forks: 134});
+        let accum = StarsForks::default();
+        accum.set_both(GithubRecord { stars: 1723, forks: 134});
         
         // first record sets-up accumulator - no changes        
         let mut record = GithubRecord { stars: 1723, forks: 134};
