@@ -24,6 +24,8 @@ struct GithubOutgoing {
     result: String
 }
 
+static STARS_FORKS: OnceCell<StarsForks> = OnceCell::new();
+
 /// Accumulator for stars and forks
 /// Use Atomic to update internal state
 #[derive(Default, Debug, Deserialize)]
@@ -96,16 +98,13 @@ impl StarsForks {
     }
 }
 
-static STARS_FORKS: OnceCell<StarsForks> = OnceCell::new();
-
 #[smartmodule(look_back)]
 pub fn look_back(record: &Record) -> Result<()> {
     let init_val = match record.value.is_empty() {
         true => StarsForks::default(),
-        false => {
-            let new_data: GithubRecord = serde_json::from_slice(record.value.as_ref())?;
-            StarsForks::new(new_data)
-        }
+        false => StarsForks::new(
+            serde_json::from_slice(record.value.as_ref())?
+        )
     };
 
     STARS_FORKS
