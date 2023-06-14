@@ -1,11 +1,6 @@
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use once_cell::sync::OnceCell;
-
-use fluvio_smartmodule::{
-    dataplane::smartmodule::SmartModuleExtraParams,
-    eyre, smartmodule, Record, RecordData, Result,
-};
+use fluvio_smartmodule::{smartmodule, Record, RecordData, Result};
 use serde::{Deserialize, Serialize};
 
 // use u32 to represent the metric
@@ -22,10 +17,10 @@ struct GithubRecord {
 /// Outgoing record
 #[derive(Default, Serialize)]
 struct GithubOutgoing {
-    result: String
+    result: String,
 }
 
-static STARS_FORKS: OnceCell<StarsForks> = OnceCell::new();
+static STARS_FORKS: StarsForks = StarsForks::new();
 
 /// Accumulator for stars and forks
 /// Use Atomic to update internal state
@@ -36,6 +31,13 @@ struct StarsForks {
 }
 
 impl StarsForks {
+    const fn new() -> Self {
+        Self {
+            stars: AtomicMetric::new(0),
+            forks: AtomicMetric::new(0),
+        }
+    }
+
     fn get_stars(&self) -> Metric {
         self.stars.load(Ordering::SeqCst)
     }
@@ -65,7 +67,7 @@ impl StarsForks {
         if new.stars != current_stars && new.forks != current_forks {
             // if both stars and forks are changed, generate new emoji on prev stats
             let emoji = GithubOutgoing {
-                result: format!(":flags: {} \n:star2: {}", new.forks, new.stars )
+                result: format!(":flags: {} \n:star2: {}", new.forks, new.stars),
             };
             self.set_forks(new.forks);
             self.set_stars(new.stars);
@@ -73,13 +75,13 @@ impl StarsForks {
         } else if new.forks != current_forks {
             // if only forks are changed, generate new emoji on prev stats
             let emoji = GithubOutgoing {
-                result: format!(":flags: {}", new.forks)
+                result: format!(":flags: {}", new.forks),
             };
             self.set_forks(new.forks);
             Some(emoji)
         } else if new.stars != current_stars {
             let emoji = GithubOutgoing {
-                result: format!(":star2: {}", new.stars)
+                result: format!(":star2: {}", new.stars),
             };
             self.set_stars(new.stars);
             Some(emoji)
@@ -90,19 +92,11 @@ impl StarsForks {
     }
 }
 
-#[smartmodule(init)]
-fn init(_params: SmartModuleExtraParams) -> Result<()> {
-    STARS_FORKS
-        .set(StarsForks::default())
-        .map_err(|err| eyre!("init error: {:#?}", err))
-}
-
 #[smartmodule(look_back)]
 pub fn look_back(record: &Record) -> Result<()> {
     let last_value: GithubRecord = serde_json::from_slice(record.value.as_ref())?;
-    let accumulator = STARS_FORKS.get().unwrap();
 
-    accumulator.set_both(last_value);
+    STARS_FORKS.set_both(last_value);
 
     Ok(())
 }
@@ -111,16 +105,13 @@ pub fn look_back(record: &Record) -> Result<()> {
 pub fn filter_map(record: &Record) -> Result<Option<(Option<RecordData>, RecordData)>> {
     let new_data: GithubRecord = serde_json::from_slice(record.value.as_ref())?;
 
-    let accumulator = STARS_FORKS.get().unwrap();
-
-    if let Some(emoji) = accumulator.update_and_generate_moji_string(&new_data) {
+    if let Some(emoji) = STARS_FORKS.update_and_generate_moji_string(&new_data) {
         let output = serde_json::to_vec(&emoji)?;
         Ok(Some((record.key.clone(), output.into())))
     } else {
         Ok(None)
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -129,40 +120,69 @@ mod tests {
     #[test]
     fn test_updated_and_generate_emoji_string() {
         let accum = StarsForks::default();
-        accum.set_both(GithubRecord { stars: 1723, forks: 134});
-        
-        // first record sets-up accumulator - no changes        
-        let mut record = GithubRecord { stars: 1723, forks: 134};
+        accum.set_both(GithubRecord {
+            stars: 1723,
+            forks: 134,
+        });
+
+        // first record sets-up accumulator - no changes
+        let mut record = GithubRecord {
+            stars: 1723,
+            forks: 134,
+        };
         assert!(accum.update_and_generate_moji_string(&record).is_none());
 
-        // same values - no changes        
-        record = GithubRecord { stars: 1723, forks: 134};
+        // same values - no changes
+        record = GithubRecord {
+            stars: 1723,
+            forks: 134,
+        };
         assert!(accum.update_and_generate_moji_string(&record).is_none());
 
         // forks changed
-        record = GithubRecord { stars: 1723, forks: 135};
+        record = GithubRecord {
+            stars: 1723,
+            forks: 135,
+        };
         assert_eq!(
-            accum.update_and_generate_moji_string(&record).unwrap().result,
+            accum
+                .update_and_generate_moji_string(&record)
+                .unwrap()
+                .result,
             format!(":flags: 135")
         );
 
         // stars changed
-        record = GithubRecord { stars: 1724, forks: 135};
+        record = GithubRecord {
+            stars: 1724,
+            forks: 135,
+        };
         assert_eq!(
-            accum.update_and_generate_moji_string(&record).unwrap().result,
+            accum
+                .update_and_generate_moji_string(&record)
+                .unwrap()
+                .result,
             format!(":star2: 1724")
         );
 
         // both changed
-        record = GithubRecord { stars: 1723, forks: 134};
+        record = GithubRecord {
+            stars: 1723,
+            forks: 134,
+        };
         assert_eq!(
-            accum.update_and_generate_moji_string(&record).unwrap().result,
+            accum
+                .update_and_generate_moji_string(&record)
+                .unwrap()
+                .result,
             format!(":flags: 134 \n:star2: 1723")
         );
 
-        // same values - no changes        
-        record = GithubRecord { stars: 1723, forks: 134};
+        // same values - no changes
+        record = GithubRecord {
+            stars: 1723,
+            forks: 134,
+        };
         assert!(accum.update_and_generate_moji_string(&record).is_none());
-
     }
 }
