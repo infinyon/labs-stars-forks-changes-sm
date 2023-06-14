@@ -16,11 +16,13 @@ SmartModule that reads a `json` records with `stars` and `forks` fields, identif
 ### Produced Output
 
 ```
+{"result":":flags: 134 \n:star2: 1723"}
 {"result":":star2: 1722"}
 {"result":":flags: 135"}
 {"result":":flags: 136 \n:star2: 1723"}
 ...
 ```
+
 
 ### SMDK Compatible
 
@@ -30,9 +32,41 @@ This project works with `smdk` command tool:
 smdk build
 ```
 
+Run test:
+
 ```
-smdk test --file ./test-data/input.txt
+$ smdk test --file ./test-data/input.txt
+{"result":":flags: 134 \n:star2: 1723"}
+{"result":":star2: 1722"}
+{"result":":flags: 135"}
+{"result":":flags: 136 \n:star2: 1723"}
+{"result":":star2: 1724"}
 ```
 
+Run test with lookback initalization:
+
+```
+$ smdk test --file ./test-data/input.txt --lookback-last 1 --record '{"forks":134,"stars":1723}'
+{"result":":star2: 1722"}
+{"result":":flags: 135"}
+{"result":":flags: 136 \n:star2: 1723"}
+{"result":":star2: 1724"}
+```
+
+Checkout Smartmodule [lookback] for additional details.
+
+
+### Connector (Sink) Compatible
+
+This smartmodule may be used inside a sink connector with the following parameter:
+
+```
+transforms:
+  - uses: infinyon-labs/stars-forks-changes@0.1.2
+    lookback:
+      last: 1
+```
 
 [filter-map]: https://www.fluvio.io/smartmodules/transform/filter-map/
+[lookback]: https://fluvio.io/smartmodules/lookback/
+
