@@ -20,9 +20,9 @@ struct GithubOutgoing {
     result: String,
 }
 
+/// Accumulator for stars and forks
 static STARS_FORKS: StarsForks = StarsForks::new();
 
-/// Accumulator for stars and forks
 /// Use Atomic to update internal state
 #[derive(Default, Debug, Deserialize)]
 struct StarsForks {
