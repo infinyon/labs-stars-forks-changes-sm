@@ -242,7 +242,6 @@ name = "stars-forks-notify"
 version = "0.1.1"
 dependencies = [
  "fluvio-smartmodule",
- "once_cell",
  "serde",
  "serde_json",
 ]
