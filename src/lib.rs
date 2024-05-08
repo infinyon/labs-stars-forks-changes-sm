@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use fluvio_smartmodule::{smartmodule, Record, RecordData, Result};
+use fluvio_smartmodule::{smartmodule, SmartModuleRecord, RecordData, Result};
 use serde::{Deserialize, Serialize};
 
 // use u32 to represent the metric
@@ -93,7 +93,7 @@ impl StarsForks {
 }
 
 #[smartmodule(look_back)]
-pub fn look_back(record: &Record) -> Result<()> {
+pub fn look_back(record: &SmartModuleRecord) -> Result<()> {
     let last_value: GithubRecord = serde_json::from_slice(record.value.as_ref())?;
 
     STARS_FORKS.set_both(last_value);
@@ -102,7 +102,7 @@ pub fn look_back(record: &Record) -> Result<()> {
 }
 
 #[smartmodule(filter_map)]
-pub fn filter_map(record: &Record) -> Result<Option<(Option<RecordData>, RecordData)>> {
+pub fn filter_map(record: &SmartModuleRecord) -> Result<Option<(Option<RecordData>, RecordData)>> {
     let new_data: GithubRecord = serde_json::from_slice(record.value.as_ref())?;
 
     if let Some(emoji) = STARS_FORKS.update_and_generate_moji_string(&new_data) {
