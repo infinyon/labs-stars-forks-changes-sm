@@ -62,7 +62,7 @@ This smartmodule may be used inside a sink connector with the following paramete
 
 ```
 transforms:
-  - uses: infinyon-labs/stars-forks-changes@0.1.3
+  - uses: infinyon-labs/stars-forks-changes@0.1.4
     lookback:
       last: 1
 ```
