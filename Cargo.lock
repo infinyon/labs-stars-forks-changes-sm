@@ -159,6 +159,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
+name = "labs-stars-forks-changes-sm"
+version = "0.1.1"
+dependencies = [
+ "fluvio-smartmodule",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "log"
 version = "0.4.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -259,15 +268,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eb3622f419d1296904700073ea6cc23ad690adbd66f13ea683df73298736f0c1"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "stars-forks-notify"
-version = "0.1.1"
-dependencies = [
- "fluvio-smartmodule",
- "serde",
- "serde_json",
 ]
 
 [[package]]
